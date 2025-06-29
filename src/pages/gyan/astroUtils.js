@@ -114,7 +114,7 @@ export async function fetchPlanetsFromServer({ date, time, lat, lon, timezone })
     lon,
     timezone,
   });
-  const url = `https://astrogyan.duckdns.org/api/planets?${params.toString()}`;
+  const url = `https://dhama-back.onrender.com/api/planets?${params.toString()}`;
 
   const res = await fetch(url);
   if (!res.ok) {

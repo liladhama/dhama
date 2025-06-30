@@ -9,6 +9,9 @@ module.exports = {
       fontFamily: {
         soyuz: ['"Soyuz Grotesk"', 'sans-serif'],
       },
+      colors: {
+        gold: '#FFD700',
+      },
       keyframes: {
         'pulse-scale': {
           '0%, 100%': { transform: 'scale(1)' },
@@ -18,6 +21,10 @@ module.exports = {
       animation: {
         'pulse-scale': 'pulse-scale 2s ease-in-out infinite',
       },
+      transitionDuration: {
+        '4000': '4000ms',
+        '6000': '6000ms',
+      }
     },
   },
   plugins: [],

@@ -24,10 +24,29 @@ export default function Japa() {
   const [recognizedCount, setRecognizedCount] = useState(0); // Счетчик распознанных мантр
   const [circleScale, setCircleScale] = useState(1);
   const [isListening, setIsListening] = useState(false);
+  const [micPermission, setMicPermission] = useState(null); // null, 'granted', 'denied'
   
   const intervalRef = useRef(null);
   const audioRef = useRef(null);
   const recognitionRef = useRef(null);
+
+  // Запрос разрешения микрофона при загрузке компонента
+  useEffect(() => {
+    const requestMicPermission = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        setMicPermission('granted');
+        // Останавливаем поток, он нам пока не нужен
+        stream.getTracks().forEach(track => track.stop());
+        console.log('🎤 Разрешение микрофона получено');
+      } catch (error) {
+        setMicPermission('denied');
+        console.error('❌ Разрешение микрофона отклонено:', error);
+      }
+    };
+
+    requestMicPermission();
+  }, []);
 
   // Инициализация распознавания речи
   const initSpeechRecognition = () => {
@@ -36,8 +55,9 @@ export default function Japa() {
       recognitionRef.current = new SpeechRecognition();
       
       recognitionRef.current.continuous = true;
-      recognitionRef.current.interimResults = false;
+      recognitionRef.current.interimResults = true; // Включаем промежуточные результаты
       recognitionRef.current.lang = 'ru-RU';
+      recognitionRef.current.maxAlternatives = 1;
       
       recognitionRef.current.onstart = () => {
         setIsListening(true);
@@ -47,23 +67,35 @@ export default function Japa() {
       recognitionRef.current.onend = () => {
         setIsListening(false);
         console.log('🎤 Распознавание речи завершено');
+        
+        // Автоматически перезапускаем распознавание во время выдоха
+        if (isActive && breathPhase === 'exhale') {
+          setTimeout(() => {
+            if (recognitionRef.current && isActive && breathPhase === 'exhale') {
+              try {
+                recognitionRef.current.start();
+              } catch (e) {
+                console.log('Не удалось перезапустить распознавание:', e);
+              }
+            }
+          }, 100);
+        }
       };
       
       recognitionRef.current.onresult = (event) => {
         for (let i = event.resultIndex; i < event.results.length; i++) {
-          if (event.results[i].isFinal) {
-            const transcript = event.results[i][0].transcript.toLowerCase().trim();
-            console.log('🎤 Распознано:', transcript);
+          const transcript = event.results[i][0].transcript.toLowerCase().trim();
+          console.log('🎤 Распознано:', transcript, 'Final:', event.results[i].isFinal);
+          
+          // Проверяем любые результаты (не только финальные)
+          if (transcript.length > 0) {
+            // Улучшенное распознавание мантр
+            const mantraKeywords = ['ом', 'ум', 'аум', 'дум', 'дурга', 'намаха', 'намах'];
+            const hasMantraWord = mantraKeywords.some(keyword => transcript.includes(keyword));
             
-            // Проверяем, содержит ли речь элементы выбранной мантры
-            const mantraWords = selectedMantra.name.toLowerCase().split(' ');
-            const hasMantraWords = mantraWords.some(word => 
-              transcript.includes(word.replace('ом', 'ом').replace('дум', 'дум'))
-            );
-            
-            if (hasMantraWords || transcript.includes('ом')) {
+            if (hasMantraWord && event.results[i].isFinal) {
               setRecognizedCount(prev => prev + 1);
-              console.log('✅ Мантра засчитана!');
+              console.log('✅ Мантра засчитана! Распознано:', transcript);
             }
           }
         }
@@ -72,6 +104,19 @@ export default function Japa() {
       recognitionRef.current.onerror = (event) => {
         console.error('Ошибка распознавания речи:', event.error);
         setIsListening(false);
+        
+        // Перезапускаем при некритичных ошибках
+        if (event.error === 'no-speech' || event.error === 'aborted') {
+          setTimeout(() => {
+            if (recognitionRef.current && isActive && breathPhase === 'exhale') {
+              try {
+                recognitionRef.current.start();
+              } catch (e) {
+                console.log('Не удалось перезапустить после ошибки:', e);
+              }
+            }
+          }, 500);
+        }
       };
     }
   };
@@ -82,7 +127,7 @@ export default function Japa() {
     setCircleScale(1.5);
     
     setTimeout(() => {
-      // Выдох - 6 секунд + воспроизведение мантры + активация микрофона
+      // Выдох - 10 секунд + воспроизведение мантры + активация микрофона
       setBreathPhase('exhale');
       setCircleScale(1);
       
@@ -92,12 +137,14 @@ export default function Japa() {
       }
       
       // Активируем распознавание речи на выдохе
-      if (recognitionRef.current && !isListening) {
-        try {
-          recognitionRef.current.start();
-        } catch (e) {
-          console.log('Speech recognition already active');
-        }
+      if (recognitionRef.current && micPermission === 'granted') {
+        setTimeout(() => {
+          try {
+            recognitionRef.current.start();
+          } catch (e) {
+            console.log('Speech recognition already active or failed:', e);
+          }
+        }, 500); // Небольшая задержка перед началом распознавания
       }
       
       setCount(prev => prev + 1);
@@ -117,7 +164,7 @@ export default function Japa() {
     
     intervalRef.current = setInterval(() => {
       breatheCycle();
-    }, 10000); // 10 секунд на полный цикл (4 вдох + 6 выдох)
+    }, 14000); // 14 секунд на полный цикл (4 вдох + 10 выдох)
   };
 
   const stopPractice = () => {
@@ -161,7 +208,11 @@ export default function Japa() {
         clearInterval(intervalRef.current);
       }
       if (recognitionRef.current) {
-        recognitionRef.current.stop();
+        try {
+          recognitionRef.current.stop();
+        } catch (e) {
+          console.log('Recognition already stopped');
+        }
       }
     };
   }, []);
@@ -171,13 +222,36 @@ export default function Japa() {
       <h2 className="text-3xl font-bold text-center mb-8 text-amber-700">Джапа-медитация</h2>
       
       {/* Уведомление о микрофоне */}
-      {!isActive && (
+      {micPermission === 'denied' && (
+        <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex items-center">
+            <div className="text-red-500 mr-3">❌</div>
+            <div className="text-sm text-red-700">
+              <strong>Ошибка:</strong> Доступ к микрофону запрещен. 
+              Разрешите доступ в настройках браузера для подсчета мантр.
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {micPermission === 'granted' && !isActive && (
+        <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
+          <div className="flex items-center">
+            <div className="text-green-500 mr-3">✅</div>
+            <div className="text-sm text-green-700">
+              <strong>Готово:</strong> Микрофон подключен! 
+              Мы будем засчитывать произнесенные вами мантры.
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {micPermission === null && (
         <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
           <div className="flex items-center">
             <div className="text-blue-500 mr-3">🎤</div>
             <div className="text-sm text-blue-700">
-              <strong>Важно:</strong> Для подсчета мантр разрешите доступ к микрофону. 
-              Мы засчитываем только произнесенные вами мантры!
+              <strong>Запрос:</strong> Разрешите доступ к микрофону для подсчета мантр...
             </div>
           </div>
         </div>
@@ -246,7 +320,7 @@ export default function Japa() {
           <div 
             className={`w-48 h-48 rounded-full border-4 border-amber-500 flex items-center justify-center cursor-pointer transition-all ease-in-out ${
               isActive ? 'bg-amber-200 shadow-2xl' : 'shadow-lg'
-            } ${breathPhase === 'inhale' ? 'duration-[4000ms]' : 'duration-[6000ms]'}`}
+            } ${breathPhase === 'inhale' ? 'duration-[4000ms]' : 'duration-[10000ms]'}`}
             style={{ 
               transform: `scale(${circleScale})`,
               backgroundColor: isActive ? '#fde68a' : '#fffbeb',

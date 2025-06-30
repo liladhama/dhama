@@ -68,10 +68,10 @@ export default function Japa() {
         setIsListening(false);
         console.log('🎤 Распознавание речи завершено');
         
-        // Автоматически перезапускаем распознавание во время выдоха
-        if (isActive && breathPhase === 'exhale') {
+        // Автоматически перезапускаем распознавание пока практика активна
+        if (isActive) {
           setTimeout(() => {
-            if (recognitionRef.current && isActive && breathPhase === 'exhale') {
+            if (recognitionRef.current && isActive) {
               try {
                 recognitionRef.current.start();
               } catch (e) {
@@ -127,24 +127,13 @@ export default function Japa() {
     setCircleScale(1.5);
     
     setTimeout(() => {
-      // Выдох - 10 секунд + воспроизведение мантры + активация микрофона
+      // Выдох - 10 секунд + воспроизведение мантры
       setBreathPhase('exhale');
       setCircleScale(1);
       
       // Воспроизводим мантру на выдохе
       if (audioRef.current) {
         audioRef.current.play().catch(e => console.log('Audio play failed:', e));
-      }
-      
-      // Активируем распознавание речи на выдохе
-      if (recognitionRef.current && micPermission === 'granted') {
-        setTimeout(() => {
-          try {
-            recognitionRef.current.start();
-          } catch (e) {
-            console.log('Speech recognition already active or failed:', e);
-          }
-        }, 500); // Небольшая задержка перед началом распознавания
       }
       
       setCount(prev => prev + 1);
@@ -154,12 +143,25 @@ export default function Japa() {
   const startPractice = () => {
     if (isActive) return;
     
-    // Инициализируем распознавание речи
-    initSpeechRecognition();
-    
     setIsActive(true);
     setCount(0);
     setRecognizedCount(0);
+    
+    // Инициализируем и запускаем распознавание речи
+    initSpeechRecognition();
+    
+    // Запускаем микрофон сразу при старте практики
+    if (recognitionRef.current && micPermission === 'granted') {
+      setTimeout(() => {
+        try {
+          recognitionRef.current.start();
+          console.log('🎤 Микрофон запущен в начале практики');
+        } catch (e) {
+          console.log('Не удалось запустить микрофон:', e);
+        }
+      }, 500);
+    }
+    
     breatheCycle(); // Первый цикл
     
     intervalRef.current = setInterval(() => {

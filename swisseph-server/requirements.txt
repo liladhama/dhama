@@ -1,5 +1,0 @@
-fastapi
-uvicorn
-pyswisseph
-pytz
-uvicorn[standard]

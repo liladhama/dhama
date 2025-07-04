@@ -104,7 +104,7 @@ export default function GyanPage() {
         )}
         {formPlanets && (
           <div
-            style={{ position: "relative", width: "100%" }}
+            style={{ position: "relative", width: "100%", display: "flex", flexDirection: "row", alignItems: "flex-start", justifyContent: "center", gap: 0 }}
             onTouchStart={e => { swipeStartX.current = e.touches[0].clientX; }}
             onTouchEnd={e => {
               if (swipeStartX.current !== null) {
@@ -117,33 +117,31 @@ export default function GyanPage() {
               }
             }}
           >
-            <div style={{ display: "flex", flexDirection: "row", alignItems: "flex-start", justifyContent: "center", gap: 12, width: "100%" }}>
-              <div style={{ flex: 1, minWidth: 0, width: "100%" }}>
-                {chartIndex === 0 ? (
-                  <NatalDiamondChart planets={formPlanets} />
-                ) : (
-                  <NavamsaDiamondChart planetsD9={formPlanets.d9 || {}} />
-                )}
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 7, marginLeft: 0 }}>
-                <button
-                  onClick={() => setChartIndex(i => (i === 0 ? 1 : 0))}
-                  style={{
-                    background: "#f7d7db",
-                    color: "#8B0000",
-                    border: "none",
-                    borderRadius: 8,
-                    padding: "7px 10px",
-                    fontWeight: 700,
-                    fontSize: 13,
-                    cursor: "pointer",
-                    marginBottom: 2,
-                    minWidth: 70
-                  }}
-                >
-                  {chartIndex === 0 ? "Навамша (D9) →" : "← Натальная (D1)"}
-                </button>
-              </div>
+            <div style={{ flex: 2, minWidth: 0, width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+              {chartIndex === 0 ? (
+                <NatalDiamondChart planets={formPlanets} />
+              ) : (
+                <NavamsaDiamondChart planetsD9={formPlanets.d9 || {}} />
+              )}
+            </div>
+            <div style={{ flex: "0 0 auto", display: "flex", flexDirection: "column", gap: 7, marginLeft: 12, alignItems: "flex-end", justifyContent: "flex-start" }}>
+              <button
+                onClick={() => setChartIndex(i => (i === 0 ? 1 : 0))}
+                style={{
+                  background: "#f7d7db",
+                  color: "#8B0000",
+                  border: "none",
+                  borderRadius: 8,
+                  padding: "7px 10px",
+                  fontWeight: 700,
+                  fontSize: 13,
+                  cursor: "pointer",
+                  marginBottom: 2,
+                  minWidth: 70
+                }}
+              >
+                {chartIndex === 0 ? "Навамша (D9) →" : "← Натальная (D1)"}
+              </button>
             </div>
           </div>
         )}

@@ -57,7 +57,7 @@ export default function NavamsaDiamondChart({ planetsD9 }) {
   for (const planet of Object.keys(PLANET_LABELS_DIAMOND)) {
     const p = planetsD9[planet];
     if (p && p.navamsa_sign) {
-      if (!d9SignMap[p.navamsa_sign]) d9SignMap[p.navамса_sign] = [];
+      if (!d9SignMap[p.navamsa_sign]) d9SignMap[p.navamsa_sign] = [];
       d9SignMap[p.navamsa_sign].push(planet);
     }
   }

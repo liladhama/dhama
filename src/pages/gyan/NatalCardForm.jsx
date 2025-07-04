@@ -1,7 +1,5 @@
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import { fetchCoordinates, fetchTimezone, fetchPlanetsFromServer, getSign, defaultFormValues, MAIN_COLOR, BG_COLOR } from "./astroUtils";
-import NatalTable from "./NatalTable";
-import NavamsaTable from "./NavamsaTable";
 
 export default function NatalCardForm({
   expanded, setExpanded,
@@ -12,13 +10,10 @@ export default function NatalCardForm({
   error, setError,
   geoError, setGeoError,
   geoLoading, setGeoLoading,
-  onSave,
-  chartIndex = 0 // 0 — D1, 1 — D9
+  onSave
 }) {
   const latInput = useRef();
   const lonInput = useRef();
-  // --- добавляем локальный state для таблицы ---
-  const [tableIndex, setTableIndex] = useState(0); // 0 — D1, 1 — D9
 
   // Изменено: правильно учитываем летнее/зимнее время!
   async function autoFillGeo() {
@@ -480,37 +475,6 @@ export default function NatalCardForm({
             </div>
           )}
         </form>
-      )}
-      {/* --- Кнопки для независимого переключения таблицы --- */}
-      {planets && (
-        <div style={{ width: "100%", marginTop: 8, marginBottom: 2, display: "flex", justifyContent: "flex-end" }}>
-          <button
-            onClick={() => setTableIndex(i => (i === 0 ? 1 : 0))}
-            style={{
-              background: tableIndex === 0 ? "#f7d7db" : "#eaf3fb",
-              color: tableIndex === 0 ? "#8B0000" : "#1e5a8b",
-              border: "none",
-              borderRadius: 8,
-              padding: "5px 10px",
-              fontWeight: 700,
-              fontSize: 13,
-              cursor: "pointer",
-              minWidth: 70,
-              width: "auto",
-              boxShadow: "0 1px 4px #8B000022"
-            }}
-          >
-            {tableIndex === 0 ? "Таблица D9" : "Таблица D1"}
-          </button>
-        </div>
-      )}
-      {/* --- Независимое отображение таблицы --- */}
-      {planets && (
-        tableIndex === 0 ? (
-          <NatalTable planets={planets} />
-        ) : (
-          planets.d9 && <NavamsaTable planetsD9={planets.d9} />
-        )
       )}
     </div>
   );

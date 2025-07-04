@@ -104,7 +104,15 @@ export default function GyanPage() {
         )}
         {formPlanets && (
           <div
-            style={{ position: "relative", width: "100%", display: "flex", flexDirection: "row", alignItems: "flex-start", justifyContent: "center", gap: 0 }}
+            style={{
+              position: "relative",
+              width: "100%",
+              display: "flex",
+              flexDirection: window.innerWidth < 700 ? "column" : "row",
+              alignItems: window.innerWidth < 700 ? "center" : "flex-start",
+              justifyContent: "center",
+              gap: window.innerWidth < 700 ? 0 : 24
+            }}
             onTouchStart={e => { swipeStartX.current = e.touches[0].clientX; }}
             onTouchEnd={e => {
               if (swipeStartX.current !== null) {
@@ -124,7 +132,7 @@ export default function GyanPage() {
                 <NavamsaDiamondChart planetsD9={formPlanets.d9 || {}} />
               )}
             </div>
-            <div style={{ flex: "0 0 auto", display: "flex", flexDirection: "column", gap: 7, marginLeft: 12, alignItems: "flex-end", justifyContent: "flex-start" }}>
+            <div style={{ flex: "0 0 auto", display: "flex", flexDirection: "column", gap: 7, marginLeft: window.innerWidth < 700 ? 0 : 24, marginTop: window.innerWidth < 700 ? 12 : 0, alignItems: window.innerWidth < 700 ? "center" : "flex-end", justifyContent: "flex-start", width: window.innerWidth < 700 ? "100%" : "auto" }}>
               <button
                 onClick={() => setChartIndex(i => (i === 0 ? 1 : 0))}
                 style={{
@@ -137,7 +145,8 @@ export default function GyanPage() {
                   fontSize: 13,
                   cursor: "pointer",
                   marginBottom: 2,
-                  minWidth: 70
+                  minWidth: 70,
+                  width: window.innerWidth < 700 ? "100%" : "auto"
                 }}
               >
                 {chartIndex === 0 ? "Навамша (D9) →" : "← Натальная (D1)"}

@@ -133,6 +133,11 @@ export default function NatalCardForm({
         }));
       }
 
+      // --- Сохраняем дробную карту D9 (навамша) из ответа сервера ---
+      if (planetsData.d9) {
+        planetsObj.d9 = planetsData.d9;
+      }
+
       setPlanets(planetsObj);
       setAyanamsha(null);
     } catch (err) {

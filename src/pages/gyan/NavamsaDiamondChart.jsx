@@ -51,11 +51,34 @@ function getPolygonCenter(points) {
 }
 export default function NavamsaDiamondChart({ planetsD9 }) {
   if (!planetsD9) return null;
-  const ascSign = planetsD9.ascendant?.sign || SIGNS[0];
+  // --- Формируем карту: для каждого знака d9 — список планет ---
+  // d9: { planet: { navamsa_sign, navamsa_num, ... } }
+  const d9SignMap = {};
+  for (const planet of Object.keys(PLANET_LABELS_DIAMOND)) {
+    const p = planetsD9[planet];
+    if (p && p.navamsa_sign) {
+      if (!d9SignMap[p.navamsa_sign]) d9SignMap[p.navамса_sign] = [];
+      d9SignMap[p.navamsa_sign].push(planet);
+    }
+  }
+  // Для асцендента: вычисляем знак d9 по navamsa_sign, если есть
+  const ascSign = planetsD9.ascendant?.navamsa_sign || SIGNS[0];
   const ascSignIndex = SIGNS.indexOf(ascSign);
-  const houseMap = getPlanetHouseMap(planetsD9, ascSignIndex);
   function getHouseIndex(num) { return (num - 1 + 12) % 12; }
-  // ...остальной рендеринг аналогично NatalDiamondChart...
+
+  // Для таблицы: вычисляем накшатру и паду, если сервер не вернул
+  const planetNakshMap = {};
+  for (const planet of Object.keys(PLANET_LABELS_DIAMOND)) {
+    const p = planetsD9[planet];
+    if (p && typeof p.navamsa_deg === "number" && typeof p.navamsa_sign === "string") {
+      const signIdx = SIGNS.indexOf(p.navamsa_sign);
+      if (signIdx !== -1) {
+        const totalDeg = signIdx * 30 + p.navamsa_deg;
+        planetNakshMap[planet] = calcNakshatraPada(totalDeg);
+      }
+    }
+  }
+
   return (
     <div style={{
       display: "flex",
@@ -76,12 +99,8 @@ export default function NavamsaDiamondChart({ planetsD9 }) {
           {housePolygons.map((pts, i) => {
             const num = i + 1;
             const signIdx = (ascSignIndex + num - 1) % 12;
-            let housePlanets = houseMap[getHouseIndex(num)] || [];
-            if (i === 0) {
-              housePlanets = housePlanets.filter(
-                p => p !== "asc" && p !== "ascendant" && p !== "Asc" && p !== "Ascendant"
-              );
-            }
+            const sign = SIGNS[signIdx];
+            const housePlanets = d9SignMap[sign] || [];
             const pointsAttr = pts.map(p => p.join(",")).join(" ");
             const pos = getHouseLabelPositionsSignOnly(pts, i);
             return (
@@ -98,9 +117,6 @@ export default function NavamsaDiamondChart({ planetsD9 }) {
                       {housePlanets.map((p, idx) => (
                         <tspan x={pos.center.x} dy={idx === 0 ? 0 : 14} key={p}>
                           {PLANET_LABELS_DIAMOND[p]}
-                          {planetsD9[p]?.retrograde === true && (
-                            <tspan style={{ fontSize: "10px", fill: "#d2691e", fontWeight: 800, letterSpacing: 1 }}>Р</tspan>
-                          )}
                         </tspan>
                       ))}
                     </text>
@@ -109,9 +125,6 @@ export default function NavamsaDiamondChart({ planetsD9 }) {
                       {housePlanets.map((p, idx) => (
                         <tspan key={p}>
                           {PLANET_LABELS_DIAMOND[p]}
-                          {planetsD9[p]?.retrograde === true && (
-                            <tspan style={{ fontSize: "10px", fill: "#d2691e", fontWeight: 800, letterSpacing: 1 }}>Р</tspan>
-                          )}
                           {idx < housePlanets.length - 1 ? " " : ""}
                         </tspan>
                       ))}
@@ -122,6 +135,97 @@ export default function NavamsaDiamondChart({ planetsD9 }) {
             );
           })}
         </svg>
+      </div>
+      {/* Таблица */}
+      <div style={{
+        width: "100%",
+        background: "#fff",
+        borderRadius: 12,
+        boxShadow: "0 1px 8px #8B000022",
+        padding: "8px 7px 8px 7px",
+        marginTop: 2,
+        overflowX: "auto"
+      }}>
+        <table style={{
+          width: "100%",
+          borderCollapse: "collapse",
+          fontSize: 14,
+          tableLayout: "fixed"
+        }}>
+          <thead>
+            <tr style={{ color: "#8B0000", fontWeight: 700 }}>
+              <th style={{ textAlign: "left", padding: "2px 2px", width: "10%" }}>Пл</th>
+              <th style={{ textAlign: "left", padding: "2px 2px", width: "15%" }}>Град</th>
+              <th style={{ textAlign: "left", padding: "2px 2px", width: "17%" }}>Знак</th>
+              <th style={{ textAlign: "left", padding: "2px 2px", width: "33%" }}>Накшатра</th>
+              <th style={{ textAlign: "left", padding: "2px 2px", width: "8%" }}>ПД</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Object.keys(PLANET_LABELS_DIAMOND).map((planetKey) => {
+              const p = planetsD9[planetKey];
+              const n = planetNakshMap[planetKey] || {};
+              if (!p) return null;
+              return (
+                <tr key={planetKey} style={{ borderBottom: "1px solid #f1b6c1" }}>
+                  <td
+                    style={{
+                      padding: "1px 2px",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      maxWidth: 32,
+                      fontWeight: 700
+                    }}
+                  >
+                    {PLANET_LABELS_DIAMOND[planetKey]}
+                  </td>
+                  <td
+                    style={{
+                      padding: "1px 2px",
+                      whiteSpace: "nowrap",
+                      maxWidth: 36,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis"
+                    }}
+                  >
+                    {typeof p.navamsa_deg === "number" ? p.navamsa_deg.toFixed(2) : ""}
+                  </td>
+                  <td
+                    style={{
+                      padding: "1px 2px",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      maxWidth: 38
+                    }}
+                  >
+                    {p.navamsa_sign ? SIGN_SHORT[SIGNS.indexOf(p.navamsa_sign)] : ""}
+                  </td>
+                  <td
+                    style={{
+                      padding: "1px 2px",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      maxWidth: 90,
+                      cursor: n.nakshatra && n.nakshatra.length > 8 ? "pointer" : "default"
+                    }}
+                    title={n.nakshatra}
+                  >
+                    {p.navamsa_nakshatra || n.nakshatra || ""}
+                  </td>
+                  <td style={{
+                    padding: "1px 2px",
+                    whiteSpace: "nowrap",
+                    width: 8,
+                    textAlign: "center"
+                  }}>{p.navamsa_pada || n.pada || ""}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
     </div>
   );

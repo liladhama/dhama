@@ -61,9 +61,9 @@ export default function NavamsaDiamondChart({ planetsD9 }) {
       d9SignMap[p.navamsa_sign].push(planet);
     }
   }
-  // Для асцендента: вычисляем знак d9 по navamsa_sign, если есть
-  const ascSign = planetsD9.ascendant?.navamsa_sign || SIGNS[0];
-  const ascSignIndex = SIGNS.indexOf(ascSign);
+  // Для асцендента D9: первый дом — это знак, в который попал ascendant в дробной карте
+  const ascSignD9 = planetsD9.ascendant?.navamsa_sign || SIGNS[0];
+  const ascSignD9Index = SIGNS.indexOf(ascSignD9);
   function getHouseIndex(num) { return (num - 1 + 12) % 12; }
 
   // Для таблицы: вычисляем накшатру и паду, если сервер не вернул
@@ -98,7 +98,7 @@ export default function NavamsaDiamondChart({ planetsD9 }) {
           <line x1={B[0]} y1={B[1]} x2={C[0]} y2={C[1]} stroke="#d88" strokeWidth={1.5}/>
           {housePolygons.map((pts, i) => {
             const num = i + 1;
-            const signIdx = (ascSignIndex + num - 1) % 12;
+            const signIdx = (ascSignD9Index + num - 1) % 12;
             const sign = SIGNS[signIdx];
             const housePlanets = d9SignMap[sign] || [];
             const pointsAttr = pts.map(p => p.join(",")).join(" ");

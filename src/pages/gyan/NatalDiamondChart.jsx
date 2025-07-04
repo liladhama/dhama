@@ -1,7 +1,22 @@
-import React from "react";
+import React, { useState } from "react";
 import { SIGNS, SIGN_SHORT, PLANET_LABELS_DIAMOND, calcNakshatraPada, getPlanetHouseMap } from "./astroUtils";
+import { useSwipeable } from "react-swipeable";
 
-// Размер SVG и отступы
+function PanchangaTable({ panchanga }) {
+  if (!panchanga) return null;
+  return (
+    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 15, background: "#f7f7f7", borderRadius: 8 }}>
+      <tbody>
+        <tr><td style={{ fontWeight: 600, color: "#8B0000", padding: 4 }}>Вара</td><td style={{ padding: 4 }}>{panchanga["вара"]}</td></tr>
+        <tr><td style={{ fontWeight: 600, color: "#8B0000", padding: 4 }}>Карана</td><td style={{ padding: 4 }}>{panchanga["карана"]}</td></tr>
+        <tr><td style={{ fontWeight: 600, color: "#8B0000", padding: 4 }}>Титха</td><td style={{ padding: 4 }}>{panchanga["титха"]}</td></tr>
+        <tr><td style={{ fontWeight: 600, color: "#8B0000", padding: 4 }}>Нитья-йога</td><td style={{ padding: 4 }}>{panchanga["йога"]}</td></tr>
+        <tr><td style={{ fontWeight: 600, color: "#8B0000", padding: 4 }}>Накшатра</td><td style={{ padding: 4 }}>{panchanga["накшатра"]}</td></tr>
+      </tbody>
+    </table>
+  );
+}
+
 const SIZE = 320;
 const PADDING = 24;
 const CENTER = SIZE / 2;
@@ -93,6 +108,12 @@ function getPolygonCenter(points) {
 }
 
 export default function NatalDiamondChart({ planets }) {
+  const [tableIdx, setTableIdx] = useState(0); // 0 - планеты, 1 - панчанга
+  const handlers = useSwipeable({
+    onSwipedLeft: () => setTableIdx(idx => Math.min(idx + 1, 1)),
+    onSwipedRight: () => setTableIdx(idx => Math.max(idx - 1, 0)),
+    trackMouse: true
+  });
   if (!planets) return null;
   const ascSign = planets.ascendant?.sign || SIGNS[0];
   const ascSignIndex = SIGNS.indexOf(ascSign);
@@ -130,267 +151,292 @@ export default function NatalDiamondChart({ planets }) {
   };
 
   return (
-    <div style={{
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      width: "100%",
-      gap: 20,
-      marginTop: 18,
-      minHeight: 0,
-      flex: 1
-    }}>
-      <div style={{ width: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
-        <svg viewBox={`0 0 ${SIZE} ${SIZE}`} width="100%" height="auto" style={{ display: "block", height: "auto", width: "100%" }}>
-          {/* Внешний квадрат */}
-          <rect x={PADDING} y={PADDING} width={SQ} height={SQ}
-            fill="none"
-            stroke="#8B0000"
-            strokeWidth={3}
-          />
-          {/* Диагонали */}
-          <line x1={A[0]} y1={A[1]} x2={D[0]} y2={D[1]} stroke="#d88" strokeWidth={1.5}/>
-          <line x1={B[0]} y1={B[1]} x2={C[0]} y2={C[1]} stroke="#d88" strokeWidth={1.5}/>
-          {/* Дома */}
-          {housePolygons.map((pts, i) => {
-            const num = i + 1;
-            const signIdx = (ascSignIndex + num - 1) % 12;
-            let housePlanets = houseMap[getHouseIndex(num)] || [];
+    <div {...handlers}>
+      <div style={{ display: tableIdx === 0 ? "block" : "none" }}>
+        <div style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          width: "100%",
+          gap: 20,
+          marginTop: 18,
+          minHeight: 0,
+          flex: 1
+        }}>
+          <div style={{ width: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <svg viewBox={`0 0 ${SIZE} ${SIZE}`} width="100%" height={SIZE} style={{ display: "block", width: "100%" }}>
+              {/* Внешний квадрат */}
+              <rect x={PADDING} y={PADDING} width={SQ} height={SQ}
+                fill="none"
+                stroke="#8B0000"
+                strokeWidth={3}
+              />
+              {/* Диагонали */}
+              <line x1={A[0]} y1={A[1]} x2={D[0]} y2={D[1]} stroke="#d88" strokeWidth={1.5}/>
+              <line x1={B[0]} y1={B[1]} x2={C[0]} y2={C[1]} stroke="#d88" strokeWidth={1.5}/>
+              {/* Дома */}
+              {housePolygons.map((pts, i) => {
+                const num = i + 1;
+                const signIdx = (ascSignIndex + num - 1) % 12;
+                let housePlanets = houseMap[getHouseIndex(num)] || [];
 
-            // Убираем асцендент из первого дома (верхний ромб)
-            if (i === 0) {
-              housePlanets = housePlanets.filter(
-                p => p !== "asc" && p !== "ascendant" && p !== "Asc" && p !== "Ascendant"
-              );
-            }
+                // Убираем асцендент из первого дома (верхний ромб)
+                if (i === 0) {
+                  housePlanets = housePlanets.filter(
+                    p => p !== "asc" && p !== "ascendant" && p !== "Asc" && p !== "Ascendant"
+                  );
+                }
 
-            const pointsAttr = pts.map(p => p.join(",")).join(" ");
-            const pos = getHouseLabelPositionsSignOnly(pts, i);
+                const pointsAttr = pts.map(p => p.join(",")).join(" ");
+                const pos = getHouseLabelPositionsSignOnly(pts, i);
 
-            return (
-              <g key={i}>
-                <polygon
-                  points={pointsAttr}
-                  fill="#fbeeee"
-                  stroke="#8B0000"
-                  strokeWidth={2}
-                />
-                {/* Знак — выбранный угол */}
-                <text
-                  x={pos.sign.x}
-                  y={pos.sign.y + (customSignYShift[i] || 0)}
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                  alignmentBaseline="middle"
-                  fontWeight={700}
-                  fontSize={10}
-                  fontFamily="Arial, sans-serif"
-                  fill="#8B0000"
-                  style={{
-                    pointerEvents: "none",
-                    userSelect: "none",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    maxWidth: 28,
-                  }}
-                >
-                  <tspan
-                    style={{
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                      maxWidth: 28,
-                      display: "inline-block"
-                    }}
-                  >
-                    {SIGN_SHORT[signIdx]}
-                  </tspan>
-                </text>
-                {housePlanets.length > 0 && (
-                  (housePlanets.length > 2 && [2, 4, 8, 10].includes(i)) ? (
-                    // 3,5,9,11 дом — столбик
+                return (
+                  <g key={i}>
+                    <polygon
+                      points={pointsAttr}
+                      fill="#fbeeee"
+                      stroke="#8B0000"
+                      strokeWidth={2}
+                    />
+                    {/* Знак — выбранный угол */}
                     <text
-                      x={pos.center.x}
-                      y={pos.center.y - ((housePlanets.length - 1) * 10) / 2 + 3}
+                      x={pos.sign.x}
+                      y={pos.sign.y + (customSignYShift[i] || 0)}
                       textAnchor="middle"
                       dominantBaseline="middle"
                       alignmentBaseline="middle"
                       fontWeight={700}
                       fontSize={10}
                       fontFamily="Arial, sans-serif"
-                      fill="#333"
-                      stroke="#fff"
-                      strokeWidth={1.5}
-                      paintOrder="stroke"
-                      strokeLinejoin="round"
-                      style={{ pointerEvents: "none", userSelect: "none" }}
+                      fill="#8B0000"
+                      style={{
+                        pointerEvents: "none",
+                        userSelect: "none",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        maxWidth: 28,
+                      }}
                     >
-                      {housePlanets.map((p, idx) => (
-                        <tspan
+                      <tspan
+                        style={{
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          maxWidth: 28,
+                          display: "inline-block"
+                        }}
+                      >
+                        {SIGN_SHORT[signIdx]}
+                      </tspan>
+                    </text>
+                    {housePlanets.length > 0 && (
+                      (housePlanets.length > 2 && [2, 4, 8, 10].includes(i)) ? (
+                        // 3,5,9,11 дом — столбик
+                        <text
                           x={pos.center.x}
-                          dy={idx === 0 ? 0 : 14}
-                          key={p}
+                          y={pos.center.y - ((housePlanets.length - 1) * 10) / 2 + 3}
+                          textAnchor="middle"
+                          dominantBaseline="middle"
+                          alignmentBaseline="middle"
+                          fontWeight={700}
+                          fontSize={10}
+                          fontFamily="Arial, sans-serif"
+                          fill="#333"
+                          stroke="#fff"
+                          strokeWidth={1.5}
+                          paintOrder="stroke"
+                          strokeLinejoin="round"
+                          style={{ pointerEvents: "none", userSelect: "none" }}
                         >
-                          {PLANET_LABELS_DIAMOND[p]}
-                          {planets[p]?.retrograde === true && (
+                          {housePlanets.map((p, idx) => (
                             <tspan
-                              style={{
-                                fontSize: "10px",
-                                fill: "#d2691e",
-                                fontWeight: 800,
-                                letterSpacing: 1
-                              }}
-                            >Р</tspan>
-                          )}
-                        </tspan>
-                      ))}
-                    </text>
-                  ) : (
-                    // остальные дома — в строку
-                    <text
-                      x={pos.center.x}
-                      y={pos.center.y}
-                      textAnchor="middle"
-                      dominantBaseline="middle"
-                      alignmentBaseline="middle"
-                      fontWeight={700}
-                      fontSize={housePlanets.length > 2 ? 10 : 12}
-                      fontFamily="Arial, sans-serif"
-                      fill="#333"
-                      stroke="#fff"
-                      strokeWidth={1.5}
-                      paintOrder="stroke"
-                      strokeLinejoin="round"
-                      style={{ pointerEvents: "none", userSelect: "none" }}
-                    >
-                      {housePlanets.map((p, idx) => (
-                        <tspan key={p}>
-                          {PLANET_LABELS_DIAMOND[p]}
-                          {planets[p]?.retrograde === true && (
-                            <tspan
-                              style={{
-                                fontSize: "10px",
-                                fill: "#d2691e",
-                                fontWeight: 800,
-                                letterSpacing: 1
-                              }}
-                            >Р</tspan>
-                          )}
-                          {idx < housePlanets.length - 1 ? " " : ""}
-                        </tspan>
-                      ))}
-                    </text>
-                  )
-                )}
-              </g>
-            );
-          })}
-        </svg>
-      </div>
-      {/* Таблица */}
-      <div style={{
-        width: "100%",
-        background: "#fff",
-        borderRadius: 12,
-        boxShadow: "0 1px 8px #8B000022",
-        padding: "8px 7px 8px 7px",
-        marginTop: 2,
-        overflowX: "auto"
-      }}>
-        <table style={{
-          width: "100%",
-          borderCollapse: "collapse",
-          fontSize: 14,
-          tableLayout: "fixed"
-        }}>
-          <thead>
-            <tr style={{ color: "#8B0000", fontWeight: 700 }}>
-              <th style={{ textAlign: "left", padding: "2px 2px", width: "10%" }}>Пл</th>
-              <th style={{ textAlign: "left", padding: "2px 2px", width: "15%" }}>Град</th>
-              <th style={{ textAlign: "left", padding: "2px 2px", width: "17%" }}>Знак</th>
-              <th style={{ textAlign: "left", padding: "2px 2px", width: "33%" }}>Накшатра</th>
-              <th style={{ textAlign: "left", padding: "2px 2px", width: "8%" }}>ПД</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Object.keys(PLANET_LABELS_DIAMOND).map((planetKey) => {
-              const p = planets[planetKey];
-              const n = planetNakshMap[planetKey] || {};
-              if (!p) return null;
-              return (
-                <tr key={planetKey} style={{ borderBottom: "1px solid #f1b6c1" }}>
-                  <td
-                    style={{
-                      padding: "1px 2px",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                      maxWidth: 32,
-                      fontWeight: 700
-                    }}
-                  >
-                    {PLANET_LABELS_DIAMOND[planetKey]}
-                    {p?.retrograde === true && (
-                      <span style={{
-                        color: "#d2691e",
-                        fontWeight: 800,
-                        fontSize: "13px",
-                        marginLeft: 2,
-                        letterSpacing: 1
-                      }}>Р</span>
+                              x={pos.center.x}
+                              dy={idx === 0 ? 0 : 14}
+                              key={p}
+                            >
+                              {PLANET_LABELS_DIAMOND[p]}
+                              {planets[p]?.retrograde === true && (
+                                <tspan
+                                  style={{
+                                    fontSize: "10px",
+                                    fill: "#d2691e",
+                                    fontWeight: 800,
+                                    letterSpacing: 1
+                                  }}
+                                >Р</tspan>
+                              )}
+                            </tspan>
+                          ))}
+                        </text>
+                      ) : (
+                        // остальные дома — в строку
+                        <text
+                          x={pos.center.x}
+                          y={pos.center.y}
+                          textAnchor="middle"
+                          dominantBaseline="middle"
+                          alignmentBaseline="middle"
+                          fontWeight={700}
+                          fontSize={housePlanets.length > 2 ? 10 : 12}
+                          fontFamily="Arial, sans-serif"
+                          fill="#333"
+                          stroke="#fff"
+                          strokeWidth={1.5}
+                          paintOrder="stroke"
+                          strokeLinejoin="round"
+                          style={{ pointerEvents: "none", userSelect: "none" }}
+                        >
+                          {housePlanets.map((p, idx) => (
+                            <tspan key={p}>
+                              {PLANET_LABELS_DIAMOND[p]}
+                              {planets[p]?.retrograde === true && (
+                                <tspan
+                                  style={{
+                                    fontSize: "10px",
+                                    fill: "#d2691e",
+                                    fontWeight: 800,
+                                    letterSpacing: 1
+                                  }}
+                                >Р</tspan>
+                              )}
+                              {idx < housePlanets.length - 1 ? " " : ""}
+                            </tspan>
+                          ))}
+                        </text>
+                      )
                     )}
-                  </td>
-                  <td
-                    style={{
-                      padding: "1px 2px",
-                      whiteSpace: "nowrap",
-                      maxWidth: 36,
-                      overflow: "hidden",
-                      textOverflow: "ellipsis"
-                    }}
-                  >
-                    {p.deg_in_sign_str || ""}
-                  </td>
-                  <td
-                    style={{
-                      padding: "1px 2px",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                      maxWidth: 38
-                    }}
-                  >
-                    {p.sign ||
-                      ((planetKey === "rahu" || planetKey === "ketu") && typeof p.longitude === "number"
-                        ? SIGNS[Math.floor(p.longitude / 30) % 12]
-                        : "")}
-                  </td>
-                  <td
-                    style={{
-                      padding: "1px 2px",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                      maxWidth: 90,
-                      cursor: n.nakshatra && n.nakshatra.length > 8 ? "pointer" : "default"
-                    }}
-                    title={n.nakshatra}
-                  >
-                    {n.nakshatra || ""}
-                  </td>
-                  <td style={{
-                    padding: "1px 2px",
-                    whiteSpace: "nowrap",
-                    width: 8,
-                    textAlign: "center"
-                  }}>{n.pada || ""}</td>
+                  </g>
+                );
+              })}
+            </svg>
+          </div>
+          {/* Таблица */}
+          <div style={{
+            width: "100%",
+            background: "#fff",
+            borderRadius: 12,
+            boxShadow: "0 1px 8px #8B000022",
+            padding: "8px 7px 8px 7px",
+            marginTop: 2,
+            overflowX: "auto"
+          }}>
+            <table style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              fontSize: 14,
+              tableLayout: "fixed"
+            }}>
+              <thead>
+                <tr style={{ color: "#8B0000", fontWeight: 700 }}>
+                  <th style={{ textAlign: "left", padding: "2px 2px", width: "10%" }}>Пл</th>
+                  <th style={{ textAlign: "left", padding: "2px 2px", width: "15%" }}>Град</th>
+                  <th style={{ textAlign: "left", padding: "2px 2px", width: "17%" }}>Знак</th>
+                  <th style={{ textAlign: "left", padding: "2px 2px", width: "33%" }}>Накшатра</th>
+                  <th style={{ textAlign: "left", padding: "2px 2px", width: "8%" }}>ПД</th>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
+              </thead>
+              <tbody>
+                {Object.keys(PLANET_LABELS_DIAMOND).map((planetKey) => {
+                  const p = planets[planetKey];
+                  const n = planetNakshMap[planetKey] || {};
+                  if (!p) return null;
+                  return (
+                    <tr key={planetKey} style={{ borderBottom: "1px solid #f1b6c1" }}>
+                      <td
+                        style={{
+                          padding: "1px 2px",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          maxWidth: 32,
+                          fontWeight: 700
+                        }}
+                      >
+                        {PLANET_LABELS_DIAMOND[planetKey]}
+                        {p?.retrograde === true && (
+                          <span style={{
+                            color: "#d2691e",
+                            fontWeight: 800,
+                            fontSize: "13px",
+                            marginLeft: 2,
+                            letterSpacing: 1
+                          }}>Р</span>
+                        )}
+                      </td>
+                      <td
+                        style={{
+                          padding: "1px 2px",
+                          whiteSpace: "nowrap",
+                          maxWidth: 36,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis"
+                        }}
+                      >
+                        {p.deg_in_sign_str || ""}
+                      </td>
+                      <td
+                        style={{
+                          padding: "1px 2px",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          maxWidth: 38
+                        }}
+                      >
+                        {p.sign ||
+                          ((planetKey === "rahu" || planetKey === "ketu") && typeof p.longitude === "number"
+                            ? SIGNS[Math.floor(p.longitude / 30) % 12]
+                            : "")}
+                      </td>
+                      <td
+                        style={{
+                          padding: "1px 2px",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          maxWidth: 90,
+                          cursor: n.nakshatra && n.nakshatra.length > 8 ? "pointer" : "default"
+                        }}
+                        title={n.nakshatra}
+                      >
+                        {n.nakshatra || ""}
+                      </td>
+                      <td style={{
+                        padding: "1px 2px",
+                        whiteSpace: "nowrap",
+                        width: 8,
+                        textAlign: "center"
+                      }}>{n.pada || ""}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div style={{ display: tableIdx === 1 ? "block" : "none", width: "100%", marginTop: 10 }}>
+        <PanchangaTable panchanga={planets.panchanga} />
+      </div>
+      <div style={{ display: "flex", justifyContent: "center", marginTop: 10 }}>
+        <button
+          onClick={() => setTableIdx(idx => 1 - idx)}
+          style={{
+            background: "#fff",
+            border: `1.5px solid #8B0000` ,
+            color: "#8B0000",
+            borderRadius: 8,
+            fontWeight: 700,
+            fontSize: 14,
+            padding: "6px 14px",
+            cursor: "pointer",
+            minWidth: 80
+          }}
+        >
+          {tableIdx === 0 ? "Панчанга" : "Планеты"}
+        </button>
       </div>
     </div>
   );

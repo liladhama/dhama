@@ -92,18 +92,18 @@ export default function NatalCardForm({
         timezone: values.timezone || "Europe/Moscow", // теперь передаем timezone
       });
       // --- ЛОГ ДЛЯ D9 ---
-      console.log("Ответ сервера (planetsData):", planetsData);
-      if (planetsData.d9) {
-        const d9map = {};
-        for (const planet of Object.keys(planetsData.d9)) {
-          const p = planetsData.d9[planet];
-          if (p && p.navamsa_sign) {
-            if (!d9map[p.navamsa_sign]) d9map[p.navamsa_sign] = [];
-            d9map[p.navamsa_sign].push(planet);
-          }
-        }
-        console.log("D9: распределение планет по знакам:", d9map);
-      }
+      // console.log("Ответ сервера (planetsData):", planetsData);
+      // if (planetsData.d9) {
+      //   const d9map = {};
+      //   for (const planet of Object.keys(planetsData.d9)) {
+      //     const p = planetsData.d9[planet];
+      //     if (p && p.navamsa_sign) {
+      //       if (!d9map[p.navamsa_sign]) d9map[p.navamsa_sign] = [];
+      //       d9map[p.navamsa_sign].push(planet);
+      //     }
+      //   }
+      //   console.log("D9: распределение планет по знакам:", d9map);
+      // }
 
       const planetsObj = {};
 

@@ -57,60 +57,72 @@ export default function NavamsaDiamondChart({ planetsD9 }) {
   function getHouseIndex(num) { return (num - 1 + 12) % 12; }
   // ...остальной рендеринг аналогично NatalDiamondChart...
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 20, marginTop: 18 }}>
-      <svg viewBox={`0 0 ${SIZE} ${SIZE}`} width={SIZE} height={SIZE} style={{ display: "block" }}>
-        <rect x={PADDING} y={PADDING} width={SQ} height={SQ} fill="none" stroke="#8B0000" strokeWidth={3} />
-        <line x1={A[0]} y1={A[1]} x2={D[0]} y2={D[1]} stroke="#d88" strokeWidth={1.5}/>
-        <line x1={B[0]} y1={B[1]} x2={C[0]} y2={C[1]} stroke="#d88" strokeWidth={1.5}/>
-        {housePolygons.map((pts, i) => {
-          const num = i + 1;
-          const signIdx = (ascSignIndex + num - 1) % 12;
-          let housePlanets = houseMap[getHouseIndex(num)] || [];
-          if (i === 0) {
-            housePlanets = housePlanets.filter(
-              p => p !== "asc" && p !== "ascendant" && p !== "Asc" && p !== "Ascendant"
+    <div style={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      width: "100%",
+      gap: 20,
+      marginTop: 18,
+      minHeight: 0,
+      flex: 1
+    }}>
+      <div style={{ width: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <svg viewBox={`0 0 ${SIZE} ${SIZE}`} width="100%" height="auto" style={{ display: "block", maxWidth: 370, height: "auto", width: "100%" }}>
+          <rect x={PADDING} y={PADDING} width={SQ} height={SQ} fill="none" stroke="#8B0000" strokeWidth={3} />
+          <line x1={A[0]} y1={A[1]} x2={D[0]} y2={D[1]} stroke="#d88" strokeWidth={1.5}/>
+          <line x1={B[0]} y1={B[1]} x2={C[0]} y2={C[1]} stroke="#d88" strokeWidth={1.5}/>
+          {housePolygons.map((pts, i) => {
+            const num = i + 1;
+            const signIdx = (ascSignIndex + num - 1) % 12;
+            let housePlanets = houseMap[getHouseIndex(num)] || [];
+            if (i === 0) {
+              housePlanets = housePlanets.filter(
+                p => p !== "asc" && p !== "ascendant" && p !== "Asc" && p !== "Ascendant"
+              );
+            }
+            const pointsAttr = pts.map(p => p.join(",")).join(" ");
+            const pos = getHouseLabelPositionsSignOnly(pts, i);
+            return (
+              <g key={i}>
+                <polygon points={pointsAttr} fill="#eef7fb" stroke="#8B0000" strokeWidth={2} />
+                <text x={pos.sign.x} y={pos.sign.y} textAnchor="middle" dominantBaseline="middle" alignmentBaseline="middle" fontWeight={700} fontSize={10} fontFamily="Arial, sans-serif" fill="#1e5a8b" style={{ pointerEvents: "none", userSelect: "none", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 28 }}>
+                  <tspan style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 28, display: "inline-block" }}>
+                    {SIGN_SHORT[signIdx]}
+                  </tspan>
+                </text>
+                {housePlanets.length > 0 && (
+                  (housePlanets.length > 2 && [2, 4, 8, 10].includes(i)) ? (
+                    <text x={pos.center.x} y={pos.center.y - ((housePlanets.length - 1) * 10) / 2 + 3} textAnchor="middle" dominantBaseline="middle" alignmentBaseline="middle" fontWeight={700} fontSize={10} fontFamily="Arial, sans-serif" fill="#333" stroke="#fff" strokeWidth={1.5} paintOrder="stroke" strokeLinejoin="round" style={{ pointerEvents: "none", userSelect: "none" }}>
+                      {housePlanets.map((p, idx) => (
+                        <tspan x={pos.center.x} dy={idx === 0 ? 0 : 14} key={p}>
+                          {PLANET_LABELS_DIAMOND[p]}
+                          {planetsD9[p]?.retrograde === true && (
+                            <tspan style={{ fontSize: "10px", fill: "#d2691e", fontWeight: 800, letterSpacing: 1 }}>Р</tspan>
+                          )}
+                        </tspan>
+                      ))}
+                    </text>
+                  ) : (
+                    <text x={pos.center.x} y={pos.center.y} textAnchor="middle" dominantBaseline="middle" alignmentBaseline="middle" fontWeight={700} fontSize={housePlanets.length > 2 ? 10 : 12} fontFamily="Arial, sans-serif" fill="#333" stroke="#fff" strokeWidth={1.5} paintOrder="stroke" strokeLinejoin="round" style={{ pointerEvents: "none", userSelect: "none" }}>
+                      {housePlanets.map((p, idx) => (
+                        <tspan key={p}>
+                          {PLANET_LABELS_DIAMOND[p]}
+                          {planetsD9[p]?.retrograde === true && (
+                            <tspan style={{ fontSize: "10px", fill: "#d2691e", fontWeight: 800, letterSpacing: 1 }}>Р</tspan>
+                          )}
+                          {idx < housePlanets.length - 1 ? " " : ""}
+                        </tspan>
+                      ))}
+                    </text>
+                  )
+                )}
+              </g>
             );
-          }
-          const pointsAttr = pts.map(p => p.join(",")).join(" ");
-          const pos = getHouseLabelPositionsSignOnly(pts, i);
-          return (
-            <g key={i}>
-              <polygon points={pointsAttr} fill="#eef7fb" stroke="#8B0000" strokeWidth={2} />
-              <text x={pos.sign.x} y={pos.sign.y} textAnchor="middle" dominantBaseline="middle" alignmentBaseline="middle" fontWeight={700} fontSize={10} fontFamily="Arial, sans-serif" fill="#1e5a8b" style={{ pointerEvents: "none", userSelect: "none", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 28 }}>
-                <tspan style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 28, display: "inline-block" }}>
-                  {SIGN_SHORT[signIdx]}
-                </tspan>
-              </text>
-              {housePlanets.length > 0 && (
-                (housePlanets.length > 2 && [2, 4, 8, 10].includes(i)) ? (
-                  <text x={pos.center.x} y={pos.center.y - ((housePlanets.length - 1) * 10) / 2 + 3} textAnchor="middle" dominantBaseline="middle" alignmentBaseline="middle" fontWeight={700} fontSize={10} fontFamily="Arial, sans-serif" fill="#333" stroke="#fff" strokeWidth={1.5} paintOrder="stroke" strokeLinejoin="round" style={{ pointerEvents: "none", userSelect: "none" }}>
-                    {housePlanets.map((p, idx) => (
-                      <tspan x={pos.center.x} dy={idx === 0 ? 0 : 14} key={p}>
-                        {PLANET_LABELS_DIAMOND[p]}
-                        {planetsD9[p]?.retrograde === true && (
-                          <tspan style={{ fontSize: "10px", fill: "#d2691e", fontWeight: 800, letterSpacing: 1 }}>Р</tspan>
-                        )}
-                      </tspan>
-                    ))}
-                  </text>
-                ) : (
-                  <text x={pos.center.x} y={pos.center.y} textAnchor="middle" dominantBaseline="middle" alignmentBaseline="middle" fontWeight={700} fontSize={housePlanets.length > 2 ? 10 : 12} fontFamily="Arial, sans-serif" fill="#333" stroke="#fff" strokeWidth={1.5} paintOrder="stroke" strokeLinejoin="round" style={{ pointerEvents: "none", userSelect: "none" }}>
-                    {housePlanets.map((p, idx) => (
-                      <tspan key={p}>
-                        {PLANET_LABELS_DIAMOND[p]}
-                        {planetsD9[p]?.retrograde === true && (
-                          <tspan style={{ fontSize: "10px", fill: "#d2691e", fontWeight: 800, letterSpacing: 1 }}>Р</tspan>
-                        )}
-                        {idx < housePlanets.length - 1 ? " " : ""}
-                      </tspan>
-                    ))}
-                  </text>
-                )
-              )}
-            </g>
-          );
-        })}
-      </svg>
+          })}
+        </svg>
+      </div>
     </div>
   );
 }

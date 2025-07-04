@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import NatalDiamondChart from "./NatalDiamondChart";
 import NavamsaDiamondChart from "./NavamsaDiamondChart";
 import NatalCardForm from "./NatalCardForm";
@@ -33,6 +33,7 @@ export default function GyanPage() {
   const [formGeoLoading, setFormGeoLoading] = useState(false);
 
   const [chartIndex, setChartIndex] = useState(0); // 0 — D1, 1 — D9
+  const swipeStartX = useRef(null);
 
   const NATAL_LIMIT = 5;
 
@@ -61,7 +62,6 @@ export default function GyanPage() {
     mainSectionContent = (
       <div style={{
         width: "100%",
-        maxWidth: 370,
         margin: "0 auto",
         marginTop: 6,
         gap: 10,
@@ -103,9 +103,22 @@ export default function GyanPage() {
           />
         )}
         {formPlanets && (
-          <div style={{ position: "relative", width: "100%" }}>
-            <div style={{ display: "flex", flexDirection: "row", alignItems: "flex-start", justifyContent: "center", gap: 12 }}>
-              <div style={{ flex: 1, minWidth: 0 }}>
+          <div
+            style={{ position: "relative", width: "100%" }}
+            onTouchStart={e => { swipeStartX.current = e.touches[0].clientX; }}
+            onTouchEnd={e => {
+              if (swipeStartX.current !== null) {
+                const dx = e.changedTouches[0].clientX - swipeStartX.current;
+                if (Math.abs(dx) > 40) {
+                  if (dx < 0 && chartIndex === 0) setChartIndex(1); // свайп влево: D1→D9
+                  if (dx > 0 && chartIndex === 1) setChartIndex(0); // свайп вправо: D9→D1
+                }
+                swipeStartX.current = null;
+              }
+            }}
+          >
+            <div style={{ display: "flex", flexDirection: "row", alignItems: "flex-start", justifyContent: "center", gap: 12, width: "100%" }}>
+              <div style={{ flex: 1, minWidth: 0, width: "100%" }}>
                 {chartIndex === 0 ? (
                   <NatalDiamondChart planets={formPlanets} />
                 ) : (

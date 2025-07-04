@@ -1,6 +1,5 @@
 import React, { useRef } from "react";
 import { fetchCoordinates, fetchTimezone, fetchPlanetsFromServer, getSign, defaultFormValues, MAIN_COLOR, BG_COLOR } from "./astroUtils";
-import NatalDiamondChart from "./NatalDiamondChart";
 
 export default function NatalCardForm({
   expanded, setExpanded,
@@ -182,63 +181,113 @@ export default function NatalCardForm({
     setGeoError("");
   };
 
-  // --- отображение карты и таблиц ---
   return (
-    <div>
-      <div style={{
-        transition: "box-shadow 0.2s",
-        boxShadow: expanded ? "0 2px 16px #0001" : "none",
-        background: "#fff",
-        borderRadius: 12,
-        marginBottom: 8,
-        marginTop: 0,
-        overflow: "hidden",
-        width: "100%",
-        maxWidth: 370,
-        minWidth: 0,
-        marginLeft: "auto",
-        marginRight: "auto"
-      }}>
-        <button
-          onClick={() => setExpanded(!expanded)}
-          style={{
-            width: "100%",
-            background: expanded ? MAIN_COLOR : "#fff",
-            color: expanded ? "#fff" : MAIN_COLOR,
-            border: expanded ? "none" : `1.5px solid ${MAIN_COLOR}`,
-            borderRadius: 12,
-            fontSize: 17,
-            fontWeight: 700,
-            cursor: "pointer",
-            padding: "12px 0 10px 0",
-            boxShadow: expanded ? "0 2px 8px #8B000033" : "none",
-            outline: "none",
-            letterSpacing: "0.02em",
-            transition: "background 0.2s, color 0.2s",
-            marginBottom: expanded ? 0 : 8,
-            display: "block"
-          }}
-          aria-label={expanded ? "Свернуть" : "Развернуть"}
-        >
-          Создать карту {expanded ? "▲" : "▼"}
-        </button>
-        {expanded && (
-          <form onSubmit={handleSubmit} style={{
-            marginTop: 2,
-            background: BG_COLOR,
-            padding: "12px 14px 13px 14px",
-            borderRadius: 12,
-            marginBottom: 0,
-            display: "flex",
-            flexDirection: "column",
-            gap: 7
-          }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <label style={{ fontWeight: 500, color: "#444", fontSize: 14 }}>
-                Имя/метка
+    <div style={{
+      transition: "box-shadow 0.2s",
+      boxShadow: expanded ? "0 2px 16px #0001" : "none",
+      background: "#fff",
+      borderRadius: 12,
+      marginBottom: 8,
+      marginTop: 0,
+      overflow: "hidden",
+      width: "100%",
+      maxWidth: 370,
+      minWidth: 0,
+      marginLeft: "auto",
+      marginRight: "auto"
+    }}>
+      <button
+        onClick={() => setExpanded(!expanded)}
+        style={{
+          width: "100%",
+          background: expanded ? MAIN_COLOR : "#fff",
+          color: expanded ? "#fff" : MAIN_COLOR,
+          border: expanded ? "none" : `1.5px solid ${MAIN_COLOR}`,
+          borderRadius: 12,
+          fontSize: 17,
+          fontWeight: 700,
+          cursor: "pointer",
+          padding: "12px 0 10px 0",
+          boxShadow: expanded ? "0 2px 8px #8B000033" : "none",
+          outline: "none",
+          letterSpacing: "0.02em",
+          transition: "background 0.2s, color 0.2s",
+          marginBottom: expanded ? 0 : 8,
+          display: "block"
+        }}
+        aria-label={expanded ? "Свернуть" : "Развернуть"}
+      >
+        Создать карту {expanded ? "▲" : "▼"}
+      </button>
+      {expanded && (
+        <form onSubmit={handleSubmit} style={{
+          marginTop: 2,
+          background: BG_COLOR,
+          padding: "12px 14px 13px 14px",
+          borderRadius: 12,
+          marginBottom: 0,
+          display: "flex",
+          flexDirection: "column",
+          gap: 7
+        }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <label style={{ fontWeight: 500, color: "#444", fontSize: 14 }}>
+              Имя/метка
+              <input
+                value={values.name}
+                onChange={e => setValues(v => ({ ...v, name: e.target.value }))}
+                required
+                style={{
+                  marginTop: 3,
+                  padding: "6px 10px",
+                  borderRadius: 6,
+                  border: "1px solid #e7d6d6",
+                  fontSize: 14,
+                  outline: "none"
+                }}
+                placeholder="Моя карта"
+              />
+            </label>
+            <label style={{ fontWeight: 500, color: "#444", fontSize: 14 }}>
+              Дата рождения
+              <input
+                type="date"
+                value={values.date}
+                onChange={e => setValues(v => ({ ...v, date: e.target.value }))}
+                required
+                style={{
+                  marginTop: 3,
+                  padding: "6px 10px",
+                  borderRadius: 6,
+                  border: "1px solid #e7d6d6",
+                  fontSize: 14,
+                  outline: "none"
+                }}
+              />
+            </label>
+            <label style={{ fontWeight: 500, color: "#444", fontSize: 14 }}>
+              Время рождения
+              <input
+                type="time"
+                value={values.time}
+                onChange={e => setValues(v => ({ ...v, time: e.target.value }))}
+                required
+                style={{
+                  marginTop: 3,
+                  padding: "6px 10px",
+                  borderRadius: 6,
+                  border: "1px solid #e7d6d6",
+                  fontSize: 14,
+                  outline: "none"
+                }}
+              />
+            </label>
+            <div style={{ display: "flex", alignItems: "flex-end", gap: 7 }}>
+              <label style={{ flex: 1, fontWeight: 500, color: "#444", fontSize: 14 }}>
+                Город/место рождения
                 <input
-                  value={values.name}
-                  onChange={e => setValues(v => ({ ...v, name: e.target.value }))}
+                  value={values.place}
+                  onChange={e => setValues(v => ({ ...v, place: e.target.value }))}
                   required
                   style={{
                     marginTop: 3,
@@ -246,242 +295,186 @@ export default function NatalCardForm({
                     borderRadius: 6,
                     border: "1px solid #e7d6d6",
                     fontSize: 14,
-                    outline: "none"
+                    outline: "none",
+                    width: "100%"
                   }}
-                  placeholder="Моя карта"
+                  placeholder="Москва"
                 />
               </label>
-              <label style={{ fontWeight: 500, color: "#444", fontSize: 14 }}>
-                Дата рождения
-                <input
-                  type="date"
-                  value={values.date}
-                  onChange={e => setValues(v => ({ ...v, date: e.target.value }))}
-                  required
-                  style={{
-                    marginTop: 3,
-                    padding: "6px 10px",
-                    borderRadius: 6,
-                    border: "1px solid #e7d6d6",
-                    fontSize: 14,
-                    outline: "none"
-                  }}
-                />
-              </label>
-              <label style={{ fontWeight: 500, color: "#444", fontSize: 14 }}>
-                Время рождения
-                <input
-                  type="time"
-                  value={values.time}
-                  onChange={e => setValues(v => ({ ...v, time: e.target.value }))}
-                  required
-                  style={{
-                    marginTop: 3,
-                    padding: "6px 10px",
-                    borderRadius: 6,
-                    border: "1px solid #e7d6d6",
-                    fontSize: 14,
-                    outline: "none"
-                  }}
-                />
-              </label>
-              <div style={{ display: "flex", alignItems: "flex-end", gap: 7 }}>
-                <label style={{ flex: 1, fontWeight: 500, color: "#444", fontSize: 14 }}>
-                  Город/место рождения
-                  <input
-                    value={values.place}
-                    onChange={e => setValues(v => ({ ...v, place: e.target.value }))}
-                    required
-                    style={{
-                      marginTop: 3,
-                      padding: "6px 10px",
-                      borderRadius: 6,
-                      border: "1px solid #e7d6d6",
-                      fontSize: 14,
-                      outline: "none",
-                      width: "100%"
-                    }}
-                    placeholder="Москва"
-                  />
-                </label>
-                <button
-                  type="button"
-                  onClick={autoFillGeo}
-                  disabled={!values.place || !values.date || geoLoading}
-                  style={{
-                    marginBottom: 1,
-                    padding: "5px 10px",
-                    border: "none",
-                    borderRadius: 7,
-                    background: MAIN_COLOR,
-                    color: "#fff",
-                    fontWeight: 600,
-                    fontSize: 13,
-                    cursor: geoLoading ? "wait" : "pointer",
-                    boxShadow: "0 1px 4px #8B000011",
-                    minWidth: 44,
-                    transition: "background 0.18s"
-                  }}
-                  title="Определить координаты и часовой пояс"
-                >
-                  {geoLoading ? "..." : "Авто"}
-                </button>
-              </div>
-              {geoError && (
-                <span style={{ color: "red", marginLeft: 2, fontSize: 12 }}>{geoError}</span>
-              )}
-              <div style={{ display: "flex", gap: 7 }}>
-                <label style={{ flex: 1, fontWeight: 500, color: "#444", fontSize: 14 }}>
-                  Широта
-                  <input
-                    ref={latInput}
-                    type="number"
-                    step="any"
-                    value={values.latitude}
-                    onChange={e => setValues(v => ({ ...v, latitude: e.target.value }))}
-                    placeholder="55.75"
-                    required
-                    style={{
-                      marginTop: 3,
-                      padding: "6px 10px",
-                      borderRadius: 6,
-                      border: "1px solid #e7d6d6",
-                      fontSize: 14,
-                      outline: "none",
-                      width: "100%"
-                    }}
-                  />
-                </label>
-                <label style={{ flex: 1, fontWeight: 500, color: "#444", fontSize: 14 }}>
-                  Долгота
-                  <input
-                    ref={lonInput}
-                    type="number"
-                    step="any"
-                    value={values.longitude}
-                    onChange={e => setValues(v => ({ ...v, longitude: e.target.value }))}
-                    placeholder="37.6166"
-                    required
-                    style={{
-                      marginTop: 3,
-                      padding: "6px 10px",
-                      borderRadius: 6,
-                      border: "1px solid #e7d6d6",
-                      fontSize: 14,
-                      outline: "none",
-                      width: "100%"
-                    }}
-                  />
-                </label>
-              </div>
-              <div style={{ display: "flex", gap: 7 }}>
-                <label style={{ flex: 1, fontWeight: 500, color: "#444", fontSize: 14 }}>
-                  Временная зона
-                  <input
-                    value={values.timezone}
-                    readOnly
-                    style={{
-                      marginTop: 3,
-                      padding: "6px 10px",
-                      borderRadius: 6,
-                      border: "1px solid #eee",
-                      background: "#eee",
-                      fontSize: 14,
-                      color: "#888",
-                      outline: "none",
-                      width: "100%"
-                    }}
-                  />
-                </label>
-                <label style={{ flex: 1, fontWeight: 500, color: "#444", fontSize: 14 }}>
-                  UTC-offset
-                  <input
-                    value={values.tzOffset}
-                    readOnly
-                    style={{
-                      marginTop: 3,
-                      padding: "6px 10px",
-                      borderRadius: 6,
-                      border: "1px solid #eee",
-                      background: "#eee",
-                      fontSize: 14,
-                      color: "#888",
-                      outline: "none",
-                      width: "100%"
-                    }}
-                  />
-                </label>
-              </div>
+              <button
+                type="button"
+                onClick={autoFillGeo}
+                disabled={!values.place || !values.date || geoLoading}
+                style={{
+                  marginBottom: 1,
+                  padding: "5px 10px",
+                  border: "none",
+                  borderRadius: 7,
+                  background: MAIN_COLOR,
+                  color: "#fff",
+                  fontWeight: 600,
+                  fontSize: 13,
+                  cursor: geoLoading ? "wait" : "pointer",
+                  boxShadow: "0 1px 4px #8B000011",
+                  minWidth: 44,
+                  transition: "background 0.18s"
+                }}
+                title="Определить координаты и часовой пояс"
+              >
+                {geoLoading ? "..." : "Авто"}
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={handleCalc}
-              disabled={loading || !values.date || !values.time}
-              style={{
-                width: "100%",
-                padding: "7px 0",
-                border: "none",
-                borderRadius: 7,
-                background: loading ? "#ccc" : MAIN_COLOR,
-                color: "#fff",
-                fontWeight: 600,
-                fontSize: 14,
-                cursor: loading ? "wait" : "pointer",
-                boxShadow: "0 1px 4px #8B000011",
-                marginTop: 0
-              }}
-            >
-              {loading ? "Рассчитываем..." : "Рассчитать планеты"}
-            </button>
-            <button
-              type="submit"
-              disabled={!planets}
-              style={{
-                width: "100%",
-                padding: "7px 0",
-                border: "none",
-                borderRadius: 7,
-                background: !planets ? "#eee" : "#228B22",
-                color: !planets ? "#888" : "#fff",
-                fontWeight: 600,
-                fontSize: 14,
-                cursor: !planets ? "not-allowed" : "pointer",
-                boxShadow: "0 1px 4px #8B000011"
-              }}
-            >
-              Сохранить
-            </button>
-            <button
-              type="button"
-              onClick={handleReset}
-              style={{
-                marginTop: 7,
-                padding: "7px 0",
-                border: "none",
-                borderRadius: 7,
-                background: "#F7D7DB",
-                color: MAIN_COLOR,
-                fontWeight: 600,
-                fontSize: 14,
-                cursor: "pointer",
-                boxShadow: "0 1px 4px #8B000011",
-                width: "100%",
-                display: "block"
-              }}
-            >
-              Новая карта
-            </button>
-            {error && <div style={{ color: "red", marginTop: 7, fontSize: 13, textAlign: "center" }}>{error}</div>}
-            {ayanamsha !== null && (
-              <div style={{ marginTop: 6, color: "#555", fontSize: 13, textAlign: "center" }}>
-                <b>Аянамша Лахири:</b> {ayanamsha.toFixed(6)}°
-              </div>
+            {geoError && (
+              <span style={{ color: "red", marginLeft: 2, fontSize: 12 }}>{geoError}</span>
             )}
-          </form>
-        )}
-      </div>
-      {planets && (
-        <NatalDiamondChart planets={planets} panchanga={planets.panchanga} />
+            <div style={{ display: "flex", gap: 7 }}>
+              <label style={{ flex: 1, fontWeight: 500, color: "#444", fontSize: 14 }}>
+                Широта
+                <input
+                  ref={latInput}
+                  type="number"
+                  step="any"
+                  value={values.latitude}
+                  onChange={e => setValues(v => ({ ...v, latitude: e.target.value }))}
+                  placeholder="55.75"
+                  required
+                  style={{
+                    marginTop: 3,
+                    padding: "6px 10px",
+                    borderRadius: 6,
+                    border: "1px solid #e7d6d6",
+                    fontSize: 14,
+                    outline: "none",
+                    width: "100%"
+                  }}
+                />
+              </label>
+              <label style={{ flex: 1, fontWeight: 500, color: "#444", fontSize: 14 }}>
+                Долгота
+                <input
+                  ref={lonInput}
+                  type="number"
+                  step="any"
+                  value={values.longitude}
+                  onChange={e => setValues(v => ({ ...v, longitude: e.target.value }))}
+                  placeholder="37.6166"
+                  required
+                  style={{
+                    marginTop: 3,
+                    padding: "6px 10px",
+                    borderRadius: 6,
+                    border: "1px solid #e7d6d6",
+                    fontSize: 14,
+                    outline: "none",
+                    width: "100%"
+                  }}
+                />
+              </label>
+            </div>
+            <div style={{ display: "flex", gap: 7 }}>
+              <label style={{ flex: 1, fontWeight: 500, color: "#444", fontSize: 14 }}>
+                Временная зона
+                <input
+                  value={values.timezone}
+                  readOnly
+                  style={{
+                    marginTop: 3,
+                    padding: "6px 10px",
+                    borderRadius: 6,
+                    border: "1px solid #eee",
+                    background: "#eee",
+                    fontSize: 14,
+                    color: "#888",
+                    outline: "none",
+                    width: "100%"
+                  }}
+                />
+              </label>
+              <label style={{ flex: 1, fontWeight: 500, color: "#444", fontSize: 14 }}>
+                UTC-offset
+                <input
+                  value={values.tzOffset}
+                  readOnly
+                  style={{
+                    marginTop: 3,
+                    padding: "6px 10px",
+                    borderRadius: 6,
+                    border: "1px solid #eee",
+                    background: "#eee",
+                    fontSize: 14,
+                    color: "#888",
+                    outline: "none",
+                    width: "100%"
+                  }}
+                />
+              </label>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleCalc}
+            disabled={loading || !values.date || !values.time}
+            style={{
+              width: "100%",
+              padding: "7px 0",
+              border: "none",
+              borderRadius: 7,
+              background: loading ? "#ccc" : MAIN_COLOR,
+              color: "#fff",
+              fontWeight: 600,
+              fontSize: 14,
+              cursor: loading ? "wait" : "pointer",
+              boxShadow: "0 1px 4px #8B000011",
+              marginTop: 0
+            }}
+          >
+            {loading ? "Рассчитываем..." : "Рассчитать планеты"}
+          </button>
+          <button
+            type="submit"
+            disabled={!planets}
+            style={{
+              width: "100%",
+              padding: "7px 0",
+              border: "none",
+              borderRadius: 7,
+              background: !planets ? "#eee" : "#228B22",
+              color: !planets ? "#888" : "#fff",
+              fontWeight: 600,
+              fontSize: 14,
+              cursor: !planets ? "not-allowed" : "pointer",
+              boxShadow: "0 1px 4px #8B000011"
+            }}
+          >
+            Сохранить
+          </button>
+          <button
+            type="button"
+            onClick={handleReset}
+            style={{
+              marginTop: 7,
+              padding: "7px 0",
+              border: "none",
+              borderRadius: 7,
+              background: "#F7D7DB",
+              color: MAIN_COLOR,
+              fontWeight: 600,
+              fontSize: 14,
+              cursor: "pointer",
+              boxShadow: "0 1px 4px #8B000011",
+              width: "100%",
+              display: "block"
+            }}
+          >
+            Новая карта
+          </button>
+          {error && <div style={{ color: "red", marginTop: 7, fontSize: 13, textAlign: "center" }}>{error}</div>}
+          {ayanamsha !== null && (
+            <div style={{ marginTop: 6, color: "#555", fontSize: 13, textAlign: "center" }}>
+              <b>Аянамша Лахири:</b> {ayanamsha.toFixed(6)}°
+            </div>
+          )}
+        </form>
       )}
     </div>
   );

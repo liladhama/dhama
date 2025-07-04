@@ -92,7 +92,7 @@ export default function NavamsaDiamondChart({ planetsD9 }) {
       flex: 1
     }}>
       <div style={{ width: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
-        <svg viewBox={`0 0 ${SIZE} ${SIZE}`} width="100%" style={{ display: "block", width: "100%", height: "auto" }}>
+        <svg viewBox={`0 0 ${SIZE} ${SIZE}`} width="100%" height={SIZE} style={{ display: "block", width: "100%" }}>
           <rect x={PADDING} y={PADDING} width={SQ} height={SQ} fill="none" stroke="#8B0000" strokeWidth={3} />
           <line x1={A[0]} y1={A[1]} x2={D[0]} y2={D[1]} stroke="#d88" strokeWidth={1.5}/>
           <line x1={B[0]} y1={B[1]} x2={C[0]} y2={C[1]} stroke="#d88" strokeWidth={1.5}/>

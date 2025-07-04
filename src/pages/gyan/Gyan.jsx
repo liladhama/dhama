@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import NatalDiamondChart from "./NatalDiamondChart";
+import NavamsaDiamondChart from "./NavamsaDiamondChart";
 import NatalCardForm from "./NatalCardForm";
 import SavedCardsPanel from "./SavedCardsPanel";
 import SideMenuHandle from "./SideMenuHandle";
@@ -30,6 +31,8 @@ export default function GyanPage() {
   const [formError, setFormError] = useState("");
   const [formGeoError, setFormGeoError] = useState("");
   const [formGeoLoading, setFormGeoLoading] = useState(false);
+
+  const [chartIndex, setChartIndex] = useState(0); // 0 — D1, 1 — D9
 
   const NATAL_LIMIT = 5;
 
@@ -100,7 +103,36 @@ export default function GyanPage() {
           />
         )}
         {formPlanets && (
-          <NatalDiamondChart planets={formPlanets} />
+          <div style={{ position: "relative", width: "100%" }}>
+            <div style={{ display: "flex", flexDirection: "row", alignItems: "flex-start", justifyContent: "center", gap: 12 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                {chartIndex === 0 ? (
+                  <NatalDiamondChart planets={formPlanets} />
+                ) : (
+                  <NavamsaDiamondChart planetsD9={formPlanets.d9 || {}} />
+                )}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 7, marginLeft: 0 }}>
+                <button
+                  onClick={() => setChartIndex(i => (i === 0 ? 1 : 0))}
+                  style={{
+                    background: "#f7d7db",
+                    color: "#8B0000",
+                    border: "none",
+                    borderRadius: 8,
+                    padding: "7px 10px",
+                    fontWeight: 700,
+                    fontSize: 13,
+                    cursor: "pointer",
+                    marginBottom: 2,
+                    minWidth: 70
+                  }}
+                >
+                  {chartIndex === 0 ? "Навамша (D9) →" : "← Натальная (D1)"}
+                </button>
+              </div>
+            </div>
+          </div>
         )}
         <div style={{ width: "100%", marginTop: 10 }}>
           <NatalCardForm

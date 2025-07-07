@@ -1,7 +1,6 @@
 import React from "react";
 
-export default function PanchangaTable({ panchanga }) {
-  if (!panchanga) return null;
+export default function PanchangaTable() {
   return (
     <div style={{
       width: "100%",
@@ -21,23 +20,23 @@ export default function PanchangaTable({ panchanga }) {
         <tbody>
           <tr>
             <td style={{ fontWeight: 700, color: '#8B0000', width: '40%' }}>Вара</td>
-            <td>{panchanga.vara || ''}</td>
+            <td>тест</td>
           </tr>
           <tr>
             <td style={{ fontWeight: 700, color: '#8B0000' }}>Титха</td>
-            <td>{panchanga.tithi || ''}</td>
+            <td>тест</td>
           </tr>
           <tr>
             <td style={{ fontWeight: 700, color: '#8B0000' }}>Карана</td>
-            <td>{panchanga.karana || ''}</td>
+            <td>тест</td>
           </tr>
           <tr>
             <td style={{ fontWeight: 700, color: '#8B0000' }}>Нитья-йога</td>
-            <td>{panchanga.nitya_yoga || ''}</td>
+            <td>тест</td>
           </tr>
           <tr>
             <td style={{ fontWeight: 700, color: '#8B0000' }}>Накшатра</td>
-            <td>{panchanga.nakshatra || ''}</td>
+            <td>тест</td>
           </tr>
         </tbody>
       </table>

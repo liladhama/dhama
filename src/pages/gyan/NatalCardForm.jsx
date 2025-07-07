@@ -1,5 +1,6 @@
 import React, { useRef } from "react";
 import { fetchCoordinates, fetchTimezone, fetchPlanetsFromServer, getSign, defaultFormValues, MAIN_COLOR, BG_COLOR } from "./astroUtils";
+import NatalTable from "./NatalTable";
 
 export default function NatalCardForm({
   expanded, setExpanded,
@@ -476,6 +477,8 @@ export default function NatalCardForm({
           )}
         </form>
       )}
+      {/* Таблица под натальной картой — всегда статична, не зависит от переключения карты */}
+      {planets && <NatalTable planets={planets} />}
     </div>
   );
 }

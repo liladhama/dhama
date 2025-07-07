@@ -6,6 +6,7 @@ import SavedCardsPanel from "./SavedCardsPanel";
 import SideMenuHandle from "./SideMenuHandle";
 import InterpretationsSection from "./InterpretationsSection";
 import ForecastsSection from "./ForecastsSection";
+import NatalTable from "./NatalTable";
 import { defaultFormValues, MAIN_COLOR, BG_COLOR } from "./astroUtils";
 
 const SECTIONS = [
@@ -151,6 +152,11 @@ export default function GyanPage() {
                 <NavamsaDiamondChart planetsD9={formPlanets.d9 || {}} />
               )}
             </div>
+          </div>
+        )}
+        {formPlanets && (
+          <div style={{ width: "100%", marginTop: 8 }}>
+            <NatalTable planets={formPlanets} />
           </div>
         )}
         <div style={{ width: "100%", marginTop: 10 }}>

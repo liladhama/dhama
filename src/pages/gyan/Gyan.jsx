@@ -157,8 +157,7 @@ export default function GyanPage() {
           </div>
         )}
         {formPlanets && (
-          <div
-            style={{ position: "relative", width: "100%", marginTop: 8 }}
+          <div style={{ width: "100%", marginTop: 8, position: "relative" }}
             onTouchStart={e => { swipeStartX.current = e.touches[0].clientX; }}
             onTouchEnd={e => {
               if (swipeStartX.current !== null) {
@@ -171,7 +170,7 @@ export default function GyanPage() {
               }
             }}
           >
-            <div style={{ position: "absolute", top: 0, right: 0, zIndex: 2, padding: window.innerWidth < 700 ? 6 : 12 }}>
+            <div style={{ position: "absolute", top: -38, right: 0, zIndex: 2 }}>
               <button
                 onClick={() => setTableIndex(i => (i === 0 ? 1 : 0))}
                 style={{

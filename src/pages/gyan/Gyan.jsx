@@ -7,6 +7,7 @@ import SideMenuHandle from "./SideMenuHandle";
 import InterpretationsSection from "./InterpretationsSection";
 import ForecastsSection from "./ForecastsSection";
 import NatalTable from "./NatalTable";
+import PanchangaTable from "./PanchangaTable";
 import { defaultFormValues, MAIN_COLOR, BG_COLOR } from "./astroUtils";
 
 const SECTIONS = [
@@ -34,6 +35,7 @@ export default function GyanPage() {
   const [formGeoLoading, setFormGeoLoading] = useState(false);
 
   const [chartIndex, setChartIndex] = useState(0); // 0 — D1, 1 — D9
+  const [tableIndex, setTableIndex] = useState(0); // 0 — планеты, 1 — панчанга
   const swipeStartX = useRef(null);
 
   const NATAL_LIMIT = 5;
@@ -155,8 +157,44 @@ export default function GyanPage() {
           </div>
         )}
         {formPlanets && (
-          <div style={{ width: "100%", marginTop: 8 }}>
-            <NatalTable planets={formPlanets} />
+          <div style={{ width: "100%", marginTop: 8, position: "relative" }}
+            onTouchStart={e => { swipeStartX.current = e.touches[0].clientX; }}
+            onTouchEnd={e => {
+              if (swipeStartX.current !== null) {
+                const dx = e.changedTouches[0].clientX - swipeStartX.current;
+                if (Math.abs(dx) > 40) {
+                  if (dx < 0 && tableIndex === 0) setTableIndex(1); // свайп влево: Планеты→Панчанга
+                  if (dx > 0 && tableIndex === 1) setTableIndex(0); // свайп вправо: Панчанга→Планеты
+                }
+                swipeStartX.current = null;
+              }
+            }}
+          >
+            <div style={{ position: "absolute", top: -38, right: 0, zIndex: 2 }}>
+              <button
+                onClick={() => setTableIndex(i => (i === 0 ? 1 : 0))}
+                style={{
+                  background: "#f7d7db",
+                  color: "#8B0000",
+                  border: "none",
+                  borderRadius: 8,
+                  padding: "7px 10px",
+                  fontWeight: 700,
+                  fontSize: 13,
+                  cursor: "pointer",
+                  minWidth: 70,
+                  width: "auto",
+                  boxShadow: "0 1px 4px #8B000022"
+                }}
+              >
+                {tableIndex === 0 ? "Панчанга →" : "← Планеты"}
+              </button>
+            </div>
+            {tableIndex === 0 ? (
+              <NatalTable planets={formPlanets} />
+            ) : (
+              <PanchangaTable />
+            )}
           </div>
         )}
         <div style={{ width: "100%", marginTop: 10 }}>

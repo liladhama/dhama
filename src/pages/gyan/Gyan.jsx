@@ -172,7 +172,15 @@ export default function GyanPage() {
           >
             <div style={{ position: "absolute", top: -38, right: 0, zIndex: 2, padding: window.innerWidth < 700 ? 6 : 12, marginBottom: 8 }}>
               <button
-                onClick={() => setTableIndex(i => (i === 0 ? 1 : 0))}
+                onClick={() => {
+                  setTableIndex(i => {
+                    const next = i === 0 ? 1 : 0;
+                    if (next === 1 && formPlanets && formPlanets.panchanga) {
+                      console.log('Panchanga from server:', formPlanets.panchanga);
+                    }
+                    return next;
+                  });
+                }}
                 style={{
                   background: "#f7d7db",
                   color: "#8B0000",
@@ -194,7 +202,7 @@ export default function GyanPage() {
               {tableIndex === 0 ? (
                 <NatalTable planets={formPlanets} />
               ) : (
-                <PanchangaTable />
+                <PanchangaTable panchanga={formPlanets?.panchanga} />
               )}
             </div>
           </div>

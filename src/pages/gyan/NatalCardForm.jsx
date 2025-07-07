@@ -150,7 +150,10 @@ export default function NatalCardForm({
       if (planetsData.d9) {
         planetsObj.d9 = planetsData.d9;
       }
-
+      // --- Сохраняем панчангу из ответа сервера ---
+      if (planetsData.panchanga) {
+        planetsObj.panchanga = planetsData.panchanga;
+      }
       setPlanets(planetsObj);
       setAyanamsha(null);
     } catch (err) {

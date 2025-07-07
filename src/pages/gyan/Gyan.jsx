@@ -7,7 +7,6 @@ import SideMenuHandle from "./SideMenuHandle";
 import InterpretationsSection from "./InterpretationsSection";
 import ForecastsSection from "./ForecastsSection";
 import NatalTable from "./NatalTable";
-import PanchangaTable from "./PanchangaTable";
 import { defaultFormValues, MAIN_COLOR, BG_COLOR } from "./astroUtils";
 
 const SECTIONS = [
@@ -35,7 +34,6 @@ export default function GyanPage() {
   const [formGeoLoading, setFormGeoLoading] = useState(false);
 
   const [chartIndex, setChartIndex] = useState(0); // 0 — D1, 1 — D9
-  const [tableIndex, setTableIndex] = useState(0); // 0 — Планеты, 1 — Панчанга
   const swipeStartX = useRef(null);
 
   const NATAL_LIMIT = 5;
@@ -157,25 +155,8 @@ export default function GyanPage() {
           </div>
         )}
         {formPlanets && (
-          <div
-            style={{ width: "100%", marginTop: 8 }}
-            onTouchStart={e => { swipeStartX.current = e.touches[0].clientX; }}
-            onTouchEnd={e => {
-              if (swipeStartX.current !== null) {
-                const dx = e.changedTouches[0].clientX - swipeStartX.current;
-                if (Math.abs(dx) > 40) {
-                  if (dx < 0 && tableIndex === 0) setTableIndex(1); // свайп влево: Планеты→Панчанга
-                  if (dx > 0 && tableIndex === 1) setTableIndex(0); // свайп вправо: Панчанга→Планеты
-                }
-                swipeStartX.current = null;
-              }
-            }}
-          >
-            {tableIndex === 0 ? (
-              <NatalTable planets={formPlanets} />
-            ) : (
-              <PanchangaTable panchanga={formPlanets.panchanga} />
-            )}
+          <div style={{ width: "100%", marginTop: 8 }}>
+            <NatalTable planets={formPlanets} />
           </div>
         )}
         <div style={{ width: "100%", marginTop: 10 }}>

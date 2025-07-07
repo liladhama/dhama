@@ -194,7 +194,7 @@ export default function GyanPage() {
               {tableIndex === 0 ? (
                 <NatalTable planets={formPlanets} />
               ) : (
-                <PanchangaTable />
+                <PanchangaTable panchanga={formPlanets.panchanga} />
               )}
             </div>
           </div>
@@ -227,6 +227,12 @@ export default function GyanPage() {
   } else if (selectedSection === "forecast") {
     mainSectionContent = <ForecastsSection />;
   }
+
+  React.useEffect(() => {
+    if (formPlanets && formPlanets.panchanga) {
+      console.log('Panchanga from server:', formPlanets.panchanga);
+    }
+  }, [formPlanets]);
 
   return (
     <div style={{

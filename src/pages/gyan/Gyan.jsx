@@ -170,7 +170,7 @@ export default function GyanPage() {
               }
             }}
           >
-            <div style={{ position: "absolute", top: -38, right: 0, zIndex: 2 }}>
+            <div style={{ position: "absolute", top: -38, right: 0, zIndex: 2, padding: window.innerWidth < 700 ? 6 : 12 }}>
               <button
                 onClick={() => setTableIndex(i => (i === 0 ? 1 : 0))}
                 style={{

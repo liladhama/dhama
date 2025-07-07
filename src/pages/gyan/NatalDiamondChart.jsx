@@ -126,7 +126,7 @@ export default function NatalDiamondChart({ planets }) {
       flex: 1
     }}>
       <div style={{ width: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
-        <svg viewBox={`0 0 ${SIZE} ${SIZE}`} width="100%" height="auto" style={{ display: "block", height: "auto", width: "100%" }}>
+        <svg viewBox={`0 0 ${SIZE} ${SIZE}`} width="100%" style={{ display: "block", height: "auto", width: "100%" }}>
           {/* Внешний квадрат */}
           <rect x={PADDING} y={PADDING} width={SQ} height={SQ}
             fill="none"

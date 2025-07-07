@@ -170,7 +170,7 @@ export default function GyanPage() {
               }
             }}
           >
-            <div style={{ position: "absolute", top: -38, right: 0, zIndex: 2, padding: window.innerWidth < 700 ? 6 : 12 }}>
+            <div style={{ position: "absolute", top: -38, right: 0, zIndex: 2, padding: window.innerWidth < 700 ? 6 : 12, marginBottom: 8 }}>
               <button
                 onClick={() => setTableIndex(i => (i === 0 ? 1 : 0))}
                 style={{
@@ -190,11 +190,13 @@ export default function GyanPage() {
                 {tableIndex === 0 ? "Панчанга →" : "← Планеты"}
               </button>
             </div>
-            {tableIndex === 0 ? (
-              <NatalTable planets={formPlanets} />
-            ) : (
-              <PanchangaTable />
-            )}
+            <div style={{ width: "100%", marginTop: 8 }}>
+              {tableIndex === 0 ? (
+                <NatalTable planets={formPlanets} />
+              ) : (
+                <PanchangaTable />
+              )}
+            </div>
           </div>
         )}
         <div style={{ width: "100%", marginTop: 10 }}>

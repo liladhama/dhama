@@ -274,7 +274,7 @@ export default function NatalDiamondChart({ planets }) {
         </svg>
       </div>
       {/* Таблица под натальной картой — всегда статична */}
-      <NatalTable planets={planets} />
+      {/* <NatalTable planets={planets} /> */}
     </div>
   );
 }

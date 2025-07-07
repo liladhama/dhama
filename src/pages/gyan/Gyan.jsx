@@ -194,7 +194,7 @@ export default function GyanPage() {
               {tableIndex === 0 ? (
                 <NatalTable planets={formPlanets} />
               ) : (
-                <PanchangaTable />
+                <PanchangaTable panchanga={formPlanets?.panchanga} />
               )}
             </div>
           </div>

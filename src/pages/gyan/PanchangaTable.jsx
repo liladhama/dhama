@@ -2,6 +2,14 @@ import React from "react";
 
 export default function PanchangaTable({ panchanga }) {
   // Показываем таблицу всегда, даже если нет данных
+  // Список строк Панчанги
+  const rows = [
+    { label: "Вара", value: panchanga?.vara || "" },
+    { label: "Титха", value: panchanga?.tithi || "" },
+    { label: "Карана", value: panchanga?.karana || "" },
+    { label: "Нитья-йога", value: panchanga?.nitya_yoga || "" },
+    { label: "Накшатра", value: panchanga?.nakshatra || "" },
+  ];
   return (
     <div style={{
       width: "100%",
@@ -19,26 +27,15 @@ export default function PanchangaTable({ panchanga }) {
         tableLayout: "fixed"
       }}>
         <tbody>
-          <tr>
-            <td style={{ fontWeight: 700, color: '#8B0000', width: '40%' }}>Вара</td>
-            <td>{panchanga?.vara || ''}</td>
-          </tr>
-          <tr>
-            <td style={{ fontWeight: 700, color: '#8B0000' }}>Титха</td>
-            <td>{panchanga?.tithi || ''}</td>
-          </tr>
-          <tr>
-            <td style={{ fontWeight: 700, color: '#8B0000' }}>Карана</td>
-            <td>{panchanga?.karana || ''}</td>
-          </tr>
-          <tr>
-            <td style={{ fontWeight: 700, color: '#8B0000' }}>Нитья-йога</td>
-            <td>{panchanga?.nitya_yoga || ''}</td>
-          </tr>
-          <tr>
-            <td style={{ fontWeight: 700, color: '#8B0000' }}>Накшатра</td>
-            <td>{panchanga?.nakshatra || ''}</td>
-          </tr>
+          {rows.map((row, idx) => (
+            <tr
+              key={row.label}
+              style={idx !== rows.length - 1 ? { borderBottom: "1px solid #f1b6c1" } : {}}
+            >
+              <td style={{ fontWeight: 700, color: '#8B0000', width: '40%' }}>{row.label}</td>
+              <td>{row.value}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>

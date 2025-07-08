@@ -5,7 +5,7 @@ export default function PanchangaTable({ panchanga }) {
   // Список строк Панчанги
   const rows = [
     { label: "Вара", value: panchanga?.vara || "" },
-    { label: "Титха", value: panchanga?.tithi || "" },
+    { label: "Титхи", value: panchanga?.tithi || "" },
     { label: "Карана", value: panchanga?.karana || "" },
     { label: "Нитья-йога", value: panchanga?.nitya_yoga || "" },
     { label: "Накшатра", value: panchanga?.nakshatra || "" },
